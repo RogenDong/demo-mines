@@ -7,7 +7,12 @@ body {
     line-height: 0;
     background-color: #999;
 }
-
+#cover {
+    top: 0;
+    left: 0;
+    z-index: 9;
+    position: absolute;
+}
 .tmpl {
     margin: 2px;
     width: 30px;

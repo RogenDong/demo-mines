@@ -3,8 +3,29 @@
  * @type {{stop: string, ready: string, playing: string}}
  */
 var statusKey = {
+    /**
+     * 赢
+     */
+    win: "win",
+    /**
+     * 输
+     */
+    lose: "lose",
+    /**
+     * 停止
+     */
     stop: "stop",
+    /**
+     * 准备
+     */
     ready: "ready",
+    /**
+     * 暂停
+     */
+    pause: "pause",
+    /**
+     * 游玩中
+     */
     playing: "playing"
 };
 /**
@@ -71,14 +92,16 @@ function loadBlocks(w, h) {
     let sumH = (30 + 4) * h;
 
     // 设置沙盒大小
+    let cover = document.getElementById("cover");
     let sandbox = document.getElementById("sandbox");
-    sandbox.style["height"] = sumH + "px";
-    sandbox.style["width"] = sumW + "px";
+    sandbox.style["width"] = cover.style["width"] = sumW + "px";
+    sandbox.style["height"] = cover.style["height"] = sumH + "px";
 
     // 初始化矩阵，布置地雷盒子
     let boxArr = [];
     mineMatrix = [];
     openStatus = [];
+    boxArr.push(cover.outerHTML);
     for (let y = 0; y < h; y++) {
         let line1 = [];
         let line2 = [];
@@ -177,8 +200,12 @@ function openBlock(element) {
         openAround(blockX, blockY);
     } else {
         if (flag > 8) {
+            // 输了，game over
+            gameStatus = statusKey.lose;
             element.className = element.className.replace("close", "die");
             element.innerHTML = flagTmpl.replace("#flag", "X");
+            // 让透明盖子出现，阻止点击盒子
+            document.getElementById("cover").style["visibility"] = "visible";
         } else {
             element.className = element.className.replace("close", "bc" + flag);
             element.innerHTML = flagTmpl.replace("#flag", flag);
