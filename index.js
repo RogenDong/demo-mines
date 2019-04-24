@@ -3,13 +3,22 @@ var statusKey = {
     ready: "ready",
     playing: "playing"
 };
-var sandboxTmpl, boxTmpl, matrixInfo, mineMatrix, gameStatus;
+var tagKey = {
+    none: "",
+    have: "!",
+    doubt: "?"
+};
+var sandboxTmpl, flagTmpl, boxTmpl, matrixInfo, mineMatrix, openStatus, gameStatus;
 
 function winReady() {
     mineMatrix = [];
     gameStatus = statusKey.stop;
     sandboxTmpl = document.getElementById("sandbox").outerHTML;
-    boxTmpl = "<div id='mb-#x-#y' class='tmpl close' data-x='#x' data-y='#y' data-mine='0' onclick='openBlock(this)'><b class='flag' style='visibility: hidden'>#flag</b></div>"
+    flagTmpl = "<b class='flag' style='visibility: visible'>#flag</b>";
+    boxTmpl = "<div id='mb-#x-#y' class='tmpl close' " +
+        "data-x='#x' data-y='#y' data-mine='0' data-tag='' " +
+        "oncontextmenu='return false' onmouseup='mouseUp(event, this)'>" +
+        flagTmpl.replace("visible", "hidden") + "</div>"
 }
 
 /**
@@ -28,11 +37,12 @@ function loadBlocks(w, h) {
     let sumW = (30 + 4) * w;
     let sumH = (30 + 4) * h;
     let sandbox = document.getElementById("sandbox");
-    sandbox.style["width"] = sumW + "px";
     sandbox.style["height"] = sumH + "px";
+    sandbox.style["width"] = sumW + "px";
 
     let boxArr = [];
     mineMatrix = [];
+    openStatus = [];
     for (let y = 0; y < h; y++) {
         let line = [];
         for (let x = 0; x < w; x++) {
@@ -41,9 +51,20 @@ function loadBlocks(w, h) {
             line.push(0);
         }
         mineMatrix.push(line);
+        openStatus.push(line);
     }
     sandbox.innerHTML = boxArr.join("");
     gameStatus = statusKey.ready;
+}
+
+function mouseUp(event, element) {
+    if (event.button === 0) {
+        openBlock(element);
+    } else if (event.button === 2) {
+        if (gameStatus === statusKey.playing) {
+            setTag(element);
+        }
+    }
 }
 
 /**
@@ -53,6 +74,8 @@ function loadBlocks(w, h) {
  * @param firstY {Number} 起始点开的格子 - y轴
  */
 function loadMine(firstX, firstY) {
+    gameStatus = statusKey.playing;
+    let __matrixInfo = matrixInfo, __mineMatrix = mineMatrix;
     // region // 获取起始点周围坐标
     let around = [];
     let centerRange = getRange(firstX, firstY);
@@ -61,18 +84,17 @@ function loadMine(firstX, firstY) {
             around.push([x, y]);
         }
     }
-    console.log(around.toString());
     // endregion
     // region // 布雷
-    for (let i = 0; i < matrixInfo.mCount; i++) {
-        let randomX = randomNum(0, matrixInfo.width - 1), randomY = randomNum(0, matrixInfo.height - 1);
-        if (!insideRange(randomX, randomY, around) && mineMatrix[randomY][randomX] < 9) {
-            mineMatrix[randomY][randomX] += 9;
+    for (let i = 0; i < __matrixInfo.mCount; i++) {
+        let randomX = randomNum(0, __matrixInfo.width - 1), randomY = randomNum(0, __matrixInfo.height - 1);
+        if (!insideRange(randomX, randomY, around) && __mineMatrix[randomY][randomX] < 9) {
+            __mineMatrix[randomY][randomX] += 9;
             // 遍历周围格子
             let tRange = getRange(randomX, randomY);
             for (let y = tRange[2]; y <= tRange[3]; y++) {
                 for (let x = tRange[0]; x <= tRange[1]; x++) {
-                    mineMatrix[y][x]++;
+                    __mineMatrix[y][x]++;
                 }
             }
         } else {
@@ -80,7 +102,6 @@ function loadMine(firstX, firstY) {
         }
     }
     // endregion
-    gameStatus = statusKey.playing;
 }
 
 /**
@@ -90,27 +111,34 @@ function loadMine(firstX, firstY) {
  */
 function openBlock(element) {
     let blockX = parseInt(element.getAttribute("data-x")),
-        blockY = parseInt(element.getAttribute("data-y"));
+        blockY = parseInt(element.getAttribute("data-y")),
+        __openStatus = openStatus, __statusKey = statusKey;
+    // 判断是否已经打开
+    if (__openStatus[blockY][blockX] > 0) {
+        return;
+    } else {
+        __openStatus[blockY][blockX] = 1;
+    }
     switch (gameStatus) {
-        case statusKey.ready:
+        case __statusKey.ready:
             loadMine(blockX, blockY);
-        case statusKey.playing:
+        case __statusKey.playing:
+            // region // 显示盒子
             let flag = mineMatrix[blockY][blockX];
             if (flag < 1) {
                 element.className = element.className.replace("close", "empty");
                 openAround(blockX, blockY);
             } else {
-                let inH = element.innerHTML.replace("hidden", "visible");
                 if (flag > 8) {
                     element.className = element.className.replace("close", "die");
-                    inH = inH.replace("#flag", "X");
+                    element.innerHTML = flagTmpl.replace("#flag", "X");
                 } else {
                     element.className = element.className.replace("close", "bc" + flag);
-                    inH = inH.replace("#flag", flag);
+                    element.innerHTML = flagTmpl.replace("#flag", flag);
                 }
-                element.innerHTML = inH;
             }
-            element.onclick = null;
+            element.onmouseup = null;
+            // endregion
         default:
             return;
     }
@@ -127,8 +155,7 @@ function openAround(centerX, centerY) {
     let xyRange = getRange(centerX, centerY);
     for (let y = xyRange[2]; y <= xyRange[3]; y++) {
         for (let x = xyRange[0]; x <= xyRange[1]; x++) {
-            if (x === centerX && y === centerY) continue;
-            document.getElementById("mb-" + x + "-" + y).click();
+            openBlock(document.getElementById("mb-" + x + "-" + y));
         }
     }
 }
@@ -141,7 +168,27 @@ function openAround(centerX, centerY) {
  * @param element {Element} 目标元素
  */
 function setTag(element) {
-
+    let inH = flagTmpl, __tagKey = tagKey;
+    let attTag = "data-tag", defFlag = "#flag";
+    let tag = element.getAttribute(attTag);
+    switch (tag) {
+        case __tagKey.none:
+            tag = __tagKey.have;
+            inH = inH.replace(defFlag, __tagKey.have);
+            break;
+        case __tagKey.have:
+            tag = __tagKey.doubt;
+            inH = inH.replace(defFlag, __tagKey.doubt);
+            break;
+        case __tagKey.doubt:
+            tag = __tagKey.none;
+            inH = inH.replace("visible", "hidden");
+            break;
+        default:
+            tag = __tagKey.none;
+    }
+    element.setAttribute(attTag, tag);
+    element.innerHTML = inH;
 }
 
 /**
@@ -152,11 +199,11 @@ function setTag(element) {
  * @return {Array} 值域数组：[xMin, xMax, yMin, yMax]
  */
 function getRange(x, y) {
-    let xyRange = [];
+    let __matrixInfo = matrixInfo, xyRange = [];
     xyRange[0] = x > 0 ? x - 1 : x;
-    xyRange[1] = x < matrixInfo.width - 1 ? x + 1 : x;
+    xyRange[1] = x < __matrixInfo.width - 1 ? x + 1 : x;
     xyRange[2] = y > 0 ? y - 1 : y;
-    xyRange[3] = y < matrixInfo.height - 1 ? y + 1 : y;
+    xyRange[3] = y < __matrixInfo.height - 1 ? y + 1 : y;
     return xyRange;
 }
 
@@ -174,7 +221,7 @@ function insideRange(targetX, targetY, rangeArr) {
         inside = (rangeArr[x][0] === targetX && rangeArr[x][1] === targetY);
         if (inside) break;
     }
-    console.log("(%d, %d) %s", targetX, targetY, (inside ? "inside" : "outside"));
+    // console.log("(%d, %d) %s", targetX, targetY, (inside ? "inside" : "outside"));
     return inside;
 }
 
