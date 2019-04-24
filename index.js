@@ -1,19 +1,52 @@
+/**
+ * 字典：游玩状态
+ * @type {{stop: string, ready: string, playing: string}}
+ */
 var statusKey = {
     stop: "stop",
     ready: "ready",
     playing: "playing"
 };
+/**
+ * 字典：右键标签
+ * @type {{have: string, doubt: string, none: string}}
+ */
 var tagKey = {
     none: "",
     have: "!",
     doubt: "?"
 };
-var sandboxTmpl, flagTmpl, boxTmpl, matrixInfo, mineMatrix, openStatus, gameStatus;
+/**
+ * 模板：提醒/标记
+ */
+var flagTmpl,
+    /**
+     * 模板：地雷盒子基础
+     */
+    boxTmpl,
+    /**
+     * 矩阵信息
+     */
+    matrixInfo,
+    /**
+     * 矩阵：地雷位置
+     */
+    mineMatrix,
+    /**
+     * 矩阵：地雷盒子打开状态
+     */
+    openStatus,
+    /**
+     * 游玩状态
+     */
+    gameStatus;
 
+/**
+ * 初始化
+ */
 function winReady() {
     mineMatrix = [];
     gameStatus = statusKey.stop;
-    sandboxTmpl = document.getElementById("sandbox").outerHTML;
     flagTmpl = "<b class='flag' style='visibility: visible'>#flag</b>";
     boxTmpl = "<div id='mb-#x-#y' class='tmpl close' " +
         "data-x='#x' data-y='#y' data-mine='0' data-tag='' " +
@@ -36,29 +69,42 @@ function loadBlocks(w, h) {
 
     let sumW = (30 + 4) * w;
     let sumH = (30 + 4) * h;
+
+    // 设置沙盒大小
     let sandbox = document.getElementById("sandbox");
     sandbox.style["height"] = sumH + "px";
     sandbox.style["width"] = sumW + "px";
 
+    // 初始化矩阵，布置地雷盒子
     let boxArr = [];
     mineMatrix = [];
     openStatus = [];
     for (let y = 0; y < h; y++) {
-        let line = [];
+        let line1 = [];
+        let line2 = [];
         for (let x = 0; x < w; x++) {
             let tmp = boxTmpl.replace(/#x/g, x).replace(/#y/g, y);
             boxArr.push(tmp);
-            line.push(0);
+            line1.push(0);
+            line2.push(0);
         }
-        mineMatrix.push(line);
-        openStatus.push(line);
+        mineMatrix.push(line1);
+        openStatus.push(line2);
     }
     sandbox.innerHTML = boxArr.join("");
     gameStatus = statusKey.ready;
 }
 
+/**
+ * 鼠标按键弹起事件
+ *
+ * @param event 点击事件
+ * @param element 被点击按钮的dom
+ */
 function mouseUp(event, element) {
     if (event.button === 0) {
+        // 当：“正在游玩” && 打了标记 时不打开盒子
+        if (gameStatus === statusKey.playing && element.getAttribute("data-tag") === tagKey.have) return;
         openBlock(element);
     } else if (event.button === 2) {
         if (gameStatus === statusKey.playing) {
@@ -74,8 +120,8 @@ function mouseUp(event, element) {
  * @param firstY {Number} 起始点开的格子 - y轴
  */
 function loadMine(firstX, firstY) {
+    // 运行状态变更为游玩中
     gameStatus = statusKey.playing;
-    let __matrixInfo = matrixInfo, __mineMatrix = mineMatrix;
     // region // 获取起始点周围坐标
     let around = [];
     let centerRange = getRange(firstX, firstY);
@@ -86,15 +132,18 @@ function loadMine(firstX, firstY) {
     }
     // endregion
     // region // 布雷
-    for (let i = 0; i < __matrixInfo.mCount; i++) {
-        let randomX = randomNum(0, __matrixInfo.width - 1), randomY = randomNum(0, __matrixInfo.height - 1);
-        if (!insideRange(randomX, randomY, around) && __mineMatrix[randomY][randomX] < 9) {
-            __mineMatrix[randomY][randomX] += 9;
-            // 遍历周围格子
+    for (let i = 0; i < matrixInfo.mCount; i++) {
+        // 随机抽一个格子（random-x，random-y）
+        let randomX = randomNum(0, matrixInfo.width - 1), randomY = randomNum(0, matrixInfo.height - 1);
+        // 当：不在初始盒子范围内 && 抽中的格子没有雷 时才布置地雷
+        if (!insideRange(randomX, randomY, around) && mineMatrix[randomY][randomX] < 9) {
+            // 最高危险系数为 8，超过 8 便是地雷
+            mineMatrix[randomY][randomX] = 9;
+            // 遍历地雷周围的 8 个格子，危险系数自增 1
             let tRange = getRange(randomX, randomY);
             for (let y = tRange[2]; y <= tRange[3]; y++) {
                 for (let x = tRange[0]; x <= tRange[1]; x++) {
-                    __mineMatrix[y][x]++;
+                    mineMatrix[y][x]++;
                 }
             }
         } else {
@@ -110,38 +159,33 @@ function loadMine(firstX, firstY) {
  * @param element {Element} 触发的盒子
  */
 function openBlock(element) {
+    // 取坐标
     let blockX = parseInt(element.getAttribute("data-x")),
-        blockY = parseInt(element.getAttribute("data-y")),
-        __openStatus = openStatus, __statusKey = statusKey;
-    // 判断是否已经打开
-    if (__openStatus[blockY][blockX] > 0) {
-        return;
+        blockY = parseInt(element.getAttribute("data-y"));
+
+    // 已经打开的盒子，不再继续操作
+    if (openStatus[blockY][blockX] > 0) return;
+    // 没打开过就设置为打开
+    openStatus[blockY][blockX] = 1;
+
+    // ready 阶段先执行布雷函数
+    if (gameStatus === statusKey.ready) loadMine(blockX, blockY);
+    // region // 显示盒子
+    let flag = mineMatrix[blockY][blockX];
+    if (flag < 1) {
+        element.className = element.className.replace("close", "empty");
+        openAround(blockX, blockY);
     } else {
-        __openStatus[blockY][blockX] = 1;
+        if (flag > 8) {
+            element.className = element.className.replace("close", "die");
+            element.innerHTML = flagTmpl.replace("#flag", "X");
+        } else {
+            element.className = element.className.replace("close", "bc" + flag);
+            element.innerHTML = flagTmpl.replace("#flag", flag);
+        }
     }
-    switch (gameStatus) {
-        case __statusKey.ready:
-            loadMine(blockX, blockY);
-        case __statusKey.playing:
-            // region // 显示盒子
-            let flag = mineMatrix[blockY][blockX];
-            if (flag < 1) {
-                element.className = element.className.replace("close", "empty");
-                openAround(blockX, blockY);
-            } else {
-                if (flag > 8) {
-                    element.className = element.className.replace("close", "die");
-                    element.innerHTML = flagTmpl.replace("#flag", "X");
-                } else {
-                    element.className = element.className.replace("close", "bc" + flag);
-                    element.innerHTML = flagTmpl.replace("#flag", flag);
-                }
-            }
-            element.onmouseup = null;
-            // endregion
-        default:
-            return;
-    }
+    element.onmouseup = null;
+    // endregion
 }
 
 /**
@@ -168,26 +212,23 @@ function openAround(centerX, centerY) {
  * @param element {Element} 目标元素
  */
 function setTag(element) {
-    let inH = flagTmpl, __tagKey = tagKey;
-    let attTag = "data-tag", defFlag = "#flag";
-    let tag = element.getAttribute(attTag);
+    let inH = flagTmpl;
+    let attKey = "data-tag", defFlag = "#flag";
+    let tag = element.getAttribute(attKey);
     switch (tag) {
-        case __tagKey.none:
-            tag = __tagKey.have;
-            inH = inH.replace(defFlag, __tagKey.have);
+        case tagKey.none:
+            inH = inH.replace(defFlag, tag = tagKey.have);
             break;
-        case __tagKey.have:
-            tag = __tagKey.doubt;
-            inH = inH.replace(defFlag, __tagKey.doubt);
-            break;
-        case __tagKey.doubt:
-            tag = __tagKey.none;
-            inH = inH.replace("visible", "hidden");
+        case tagKey.have:
+            inH = inH.replace(defFlag, tag = tagKey.doubt);
             break;
         default:
-            tag = __tagKey.none;
+        case tagKey.doubt:
+            tag = tagKey.none;
+            inH = inH.replace("visible", "hidden");
+            break;
     }
-    element.setAttribute(attTag, tag);
+    element.setAttribute(attKey, tag);
     element.innerHTML = inH;
 }
 
@@ -199,11 +240,11 @@ function setTag(element) {
  * @return {Array} 值域数组：[xMin, xMax, yMin, yMax]
  */
 function getRange(x, y) {
-    let __matrixInfo = matrixInfo, xyRange = [];
+    let xyRange = [];
     xyRange[0] = x > 0 ? x - 1 : x;
-    xyRange[1] = x < __matrixInfo.width - 1 ? x + 1 : x;
+    xyRange[1] = x < matrixInfo.width - 1 ? x + 1 : x;
     xyRange[2] = y > 0 ? y - 1 : y;
-    xyRange[3] = y < __matrixInfo.height - 1 ? y + 1 : y;
+    xyRange[3] = y < matrixInfo.height - 1 ? y + 1 : y;
     return xyRange;
 }
 
@@ -221,7 +262,6 @@ function insideRange(targetX, targetY, rangeArr) {
         inside = (rangeArr[x][0] === targetX && rangeArr[x][1] === targetY);
         if (inside) break;
     }
-    // console.log("(%d, %d) %s", targetX, targetY, (inside ? "inside" : "outside"));
     return inside;
 }
 
