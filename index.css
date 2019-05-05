@@ -5,6 +5,7 @@ body {
 
 #sandbox {
     line-height: 0;
+    position: relative;
     background-color: #999;
 }
 #cover {
@@ -12,23 +13,27 @@ body {
     left: 0;
     z-index: 9;
     position: absolute;
+    text-align: center;
+    background-color: rgba(10,10,10,0.5);
 }
 .tmpl {
     margin: 2px;
     width: 30px;
     height: 30px;
-    position: relative;
+    text-align: center;
     border-radius: 2px;
     display: inline-block;
 }
-
-#show, .flag {
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, -50%);
+.flag {
+    line-height: 30px;
+    display: inline-block;
 }
 
+#epitaph {
+    margin: 0px;
+    font-size: 5em;
+    display: inline-block;
+}
 .close {
     background-color: #666;
 }
@@ -71,4 +76,8 @@ body {
 
 .die {
     background-color: red;
+}
+.loseMsg {
+    color: red;
+    text-shadow: 0 0 20px red;
 }

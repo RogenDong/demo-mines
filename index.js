@@ -1,4 +1,9 @@
 /**
+ * 失败次数
+ * @type {number}
+ */
+var lostCount = 0;
+/**
  * 字典：游玩状态
  * @type {{stop: string, ready: string, playing: string}}
  */
@@ -36,6 +41,18 @@ var tagKey = {
     none: "",
     have: "!",
     doubt: "?"
+};
+/**
+ * 提示语
+ * @type {{lose: string[], win: string}}
+ */
+var msgKey = {
+    win: "大佬",
+    lose: [
+        "DIE",
+        "菜",
+        "?"
+    ]
 };
 /**
  * 模板：提醒/标记
@@ -93,9 +110,12 @@ function loadBlocks(w, h) {
 
     // 设置沙盒大小
     let cover = document.getElementById("cover");
+    let epitaph = document.getElementById("epitaph");
     let sandbox = document.getElementById("sandbox");
+    cover.style["visibility"] = "hidden";
     sandbox.style["width"] = cover.style["width"] = sumW + "px";
     sandbox.style["height"] = cover.style["height"] = sumH + "px";
+    sandbox.style["height"] = cover.style["height"] = epitaph.style["line-height"] = sumH + "px";
 
     // 初始化矩阵，布置地雷盒子
     let boxArr = [];
@@ -202,10 +222,20 @@ function openBlock(element) {
         if (flag > 8) {
             // 输了，game over
             gameStatus = statusKey.lose;
-            element.className = element.className.replace("close", "die");
-            element.innerHTML = flagTmpl.replace("#flag", "X");
+            // 提示语
+            let msgLen = msgKey.lose.length;
+            let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
+            // 动态提示语
+            let epitaph = document.getElementById("epitaph");
+            epitaph.className = "loseMsg";
+            epitaph.innerText = msgKey.lose[index];
             // 让透明盖子出现，阻止点击盒子
-            document.getElementById("cover").style["visibility"] = "visible";
+            let cover = document.getElementById("cover");
+            cover.style["visibility"] = "visible";
+            // 雷区格子内容
+            element.innerHTML = flagTmpl.replace("#flag", "X");
+            element.className = element.className.replace("close", "die");
+            // TODO 打开所有未标记的地雷
         } else {
             element.className = element.className.replace("close", "bc" + flag);
             element.innerHTML = flagTmpl.replace("#flag", flag);
