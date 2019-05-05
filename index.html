@@ -9,8 +9,22 @@
 <body onload="winReady()">
 
 <div id="show">
-    <button onclick="loadBlocks(8, 8)">8 x 8</button>
-    <button onclick="loadBlocks(16, 16)">16 x 16</button>
+    <div id="modBtns">
+        <button onclick="loadBlocks(8, 8)">8 x 8</button>
+        <button onclick="loadBlocks(16, 16)">16 x 16</button>
+    </div>
+    <div id="optBtns">
+        <button id="pauseBtn" onclick="pauseGame()">暂停</button>
+        <button id="continueBtn" onclick="continueGame()">继续</button>
+        <button id="changeModBtn" onclick="changeMod()">变更难度</button>
+        <button id="stopBtn" onclick="stopGame()">结束</button>
+        <button id="retryBtn" onclick="retryGame()" style="visibility: hidden">重新开始</button>
+    </div>
+    <div id="progressInfo">
+        <b>Mine:</b><span id="found"></span>/<span id="mineNum"></span>
+        <div style="display: inline-block; width: 20px;"></div>
+        <b>Time:</b><span id="gameTime"></span>
+    </div>
     <div id="sandbox">
         <div id="cover" style="visibility: hidden;">
             <b id="epitaph"></b>

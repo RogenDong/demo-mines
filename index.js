@@ -63,6 +63,30 @@ var flagTmpl,
      */
     boxTmpl,
     /**
+     * 显示找到的地雷
+     */
+    foundSpan,
+    /**
+     * 显示游戏进行时间
+     */
+    gameTimeSpan,
+    /**
+     * 模式选择按钮
+     */
+    modBtns,
+    /**
+     * 游戏选项按钮组
+     */
+    optBtns,
+    /**
+     * 游戏选项按钮集合
+     */
+    optBtnArr,
+    /**
+     * 游戏进度信息
+     */
+    gameProgress,
+    /**
      * 矩阵信息
      */
     matrixInfo,
@@ -77,7 +101,11 @@ var flagTmpl,
     /**
      * 游玩状态
      */
-    gameStatus;
+    gameStatus,
+    /**
+     * 计时器：游戏进度
+     */
+    progressInterval;
 
 /**
  * 初始化
@@ -85,11 +113,28 @@ var flagTmpl,
 function winReady() {
     mineMatrix = [];
     gameStatus = statusKey.stop;
+    // region // 初始化显示单元
     flagTmpl = "<b class='flag' style='visibility: visible'>#flag</b>";
     boxTmpl = "<div id='mb-#x-#y' class='tmpl close' " +
         "data-x='#x' data-y='#y' data-mine='0' data-tag='' " +
         "oncontextmenu='return false' onmouseup='mouseUp(event, this)'>" +
-        flagTmpl.replace("visible", "hidden") + "</div>"
+        flagTmpl.replace("visible", "hidden") + "</div>";
+    foundSpan = document.getElementById("found");
+    gameTimeSpan = document.getElementById("gameTime");
+    // endregion
+
+    // region // 初始化按钮组
+    modBtns = document.getElementById("modBtns");
+    optBtnArr = {};
+    optBtnArr['pb'] = document.getElementById("pauseBtn");
+    optBtnArr['cb'] = document.getElementById("continueBtn");
+    optBtnArr['mb'] = document.getElementById("changeModBtn");
+    optBtnArr['sb'] = document.getElementById("stopBtn");
+    optBtns = document.getElementById("optBtns");
+    optBtns.style['display'] = "none";
+    // 隐藏进度信息
+    document.getElementById("progressInfo").style['display'] = "none";
+    // endregion
 }
 
 /**
@@ -99,25 +144,41 @@ function winReady() {
  * @param h {Number} 高
  */
 function loadBlocks(w, h) {
+    // 重置进度
+    resetGameProgress();
+
+    // 改变模式时重置嘲讽等级
+    if (matrixInfo != null) {
+        if (w !== matrixInfo.width || h !== matrixInfo.height) {
+            lostCount = 0;
+        }
+    }
+
+    // region // 初始化宽高
     matrixInfo = {
         width: w,
         height: h,
         mCount: w * h / 6.4
     };
-
     let sumW = (30 + 4) * w;
     let sumH = (30 + 4) * h;
+    foundSpan.innerText = 0;
+    document.getElementById("mineNum").innerText = matrixInfo.mCount;
+    // endregion
 
-    // 设置沙盒大小
+    // region // 设置沙盒大小
     let cover = document.getElementById("cover");
     let epitaph = document.getElementById("epitaph");
     let sandbox = document.getElementById("sandbox");
+    epitaph.innerText = "";
     cover.style["visibility"] = "hidden";
+    sandbox.style['display'] = null;
     sandbox.style["width"] = cover.style["width"] = sumW + "px";
     sandbox.style["height"] = cover.style["height"] = sumH + "px";
     sandbox.style["height"] = cover.style["height"] = epitaph.style["line-height"] = sumH + "px";
+    // endregion
 
-    // 初始化矩阵，布置地雷盒子
+    // region // 初始化矩阵，布置地雷盒子
     let boxArr = [];
     mineMatrix = [];
     openStatus = [];
@@ -135,6 +196,30 @@ function loadBlocks(w, h) {
         openStatus.push(line2);
     }
     sandbox.innerHTML = boxArr.join("");
+    // endregion
+
+    // region // 初始化游戏进度
+    gameProgress = {};
+    gameProgress['foundMine'] = 0;
+    gameProgress['time'] = 0;
+    // endregion
+
+    // region // 控制按钮的显示、隐藏、禁用
+    modBtns.style['display'] = "none";
+    optBtns.style['display'] = "inline-block";
+    // 禁用暂停按钮
+    optBtnArr.pb.disabled = true;
+    // 隐藏继续按钮
+    optBtnArr.cb.style['display'] = "none";
+    // 禁用结束按钮
+    optBtnArr.sb.disabled = true;
+    // 隐藏“重新开始”按钮
+    document.getElementById("retryBtn").style['visibility'] = 'hidden';
+    // endregion
+
+    // 显示进度信息
+    document.getElementById("progressInfo").style['display'] = null;
+
     gameStatus = statusKey.ready;
 }
 
@@ -165,6 +250,10 @@ function mouseUp(event, element) {
 function loadMine(firstX, firstY) {
     // 运行状态变更为游玩中
     gameStatus = statusKey.playing;
+    // 启用暂停按钮、变更难度按钮
+    optBtnArr.pb.disabled = false;
+    optBtnArr.sb.disabled = false;
+
     // region // 获取起始点周围坐标
     let around = [];
     let centerRange = getRange(firstX, firstY);
@@ -212,7 +301,14 @@ function openBlock(element) {
     openStatus[blockY][blockX] = 1;
 
     // ready 阶段先执行布雷函数
-    if (gameStatus === statusKey.ready) loadMine(blockX, blockY);
+    if (gameStatus === statusKey.ready) {
+        loadMine(blockX, blockY);
+        // 开始计时
+        progressInterval = setInterval(function () {
+            gameTimeSpan.innerText = timeFormat(gameProgress.time++);
+        }, 1000);
+    }
+
     // region // 显示盒子
     let flag = mineMatrix[blockY][blockX];
     if (flag < 1) {
@@ -220,18 +316,7 @@ function openBlock(element) {
         openAround(blockX, blockY);
     } else {
         if (flag > 8) {
-            // 输了，game over
-            gameStatus = statusKey.lose;
-            // 提示语
-            let msgLen = msgKey.lose.length;
-            let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
-            // 动态提示语
-            let epitaph = document.getElementById("epitaph");
-            epitaph.className = "loseMsg";
-            epitaph.innerText = msgKey.lose[index];
-            // 让透明盖子出现，阻止点击盒子
-            let cover = document.getElementById("cover");
-            cover.style["visibility"] = "visible";
+            gameOver();
             // 雷区格子内容
             element.innerHTML = flagTmpl.replace("#flag", "X");
             element.className = element.className.replace("close", "die");
@@ -274,9 +359,11 @@ function setTag(element) {
     let tag = element.getAttribute(attKey);
     switch (tag) {
         case tagKey.none:
+            gameProgress.foundMine++;
             inH = inH.replace(defFlag, tag = tagKey.have);
             break;
         case tagKey.have:
+            if (gameProgress.foundMine > 0) gameProgress.foundMine--;
             inH = inH.replace(defFlag, tag = tagKey.doubt);
             break;
         default:
@@ -285,8 +372,110 @@ function setTag(element) {
             inH = inH.replace("visible", "hidden");
             break;
     }
+    foundSpan.innerText = gameProgress.foundMine;
     element.setAttribute(attKey, tag);
     element.innerHTML = inH;
+}
+
+/**
+ * 失败
+ */
+function gameOver() {
+    // 输了，game over
+    gameStatus = statusKey.lose;
+    // 提示语
+    let msgLen = msgKey.lose.length;
+    let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
+    // 动态提示语
+    let epitaph = document.getElementById("epitaph");
+    epitaph.className = "loseMsg";
+    epitaph.innerText = msgKey.lose[index];
+    // 让透明盖子出现，阻止点击盒子
+    let cover = document.getElementById("cover");
+    cover.style["visibility"] = "visible";
+    // 禁用按钮、停止计时、显示“重新开始”
+    optBtnArr.pb.disabled = true;
+    clearInterval(progressInterval);
+    document.getElementById("retryBtn").style['visibility'] = 'visible';
+}
+
+/**
+ * 重新开始
+ */
+function retryGame() {
+    changeMod();
+    let w = matrixInfo.width,
+        h = matrixInfo.height;
+    loadBlocks(w, h);
+}
+
+/**
+ * 暂停游戏
+ */
+function pauseGame() {
+    gameStatus = statusKey.pause;
+    // 停止计时
+    clearInterval(progressInterval);
+    // 隐藏暂停，显示继续
+    optBtnArr.cb.style['display'] = null;
+    optBtnArr.pb.style['display'] = 'none';
+    // 让透明盖子出现，阻止点击盒子
+    document.getElementById("cover").style["visibility"] = "visible";
+}
+
+/**
+ * 继续游戏
+ */
+function continueGame() {
+    gameStatus = statusKey.playing;
+    // 隐藏暂停，显示继续
+    optBtnArr.pb.style['display'] = null;
+    optBtnArr.cb.style['display'] = 'none';
+    // 继续计时
+    progressInterval = setInterval(function () {
+        gameTimeSpan.innerText = timeFormat(gameProgress.time++);
+    }, 1000);
+    // 隐藏盖子
+    document.getElementById("cover").style["visibility"] = "hidden";
+}
+
+/**
+ * 改变游戏难度
+ */
+function changeMod() {
+    // 暂停游戏
+    pauseGame();
+    // 重置进度
+    resetGameProgress();
+    optBtnArr.pb.style['display'] = null;
+    // 隐藏选项按钮组、进度信息
+    document.getElementById("progressInfo").style['display'] =
+        optBtns.style['display'] = 'none';
+    // 显示难度选择器
+    modBtns.style['display'] = "inline-block";
+}
+
+/**
+ * 结束游戏
+ */
+function stopGame() {
+    // 隐藏沙盒
+    document.getElementById("sandbox").style['display'] = 'none';
+    // 通过“改变难度”的执行过程隐藏按钮组
+    changeMod();
+    // 状态改为停止
+    gameStatus = statusKey.stop;
+}
+
+/**
+ * 重置游戏进度
+ */
+function resetGameProgress() {
+    clearInterval(progressInterval);
+    gameProgress = {};
+    gameProgress.time = 0;
+    gameProgress.foundMine = 0;
+    gameTimeSpan.innerText = "--:--:--";
 }
 
 /**
@@ -331,4 +520,24 @@ function insideRange(targetX, targetY, rangeArr) {
  */
 function randomNum(min, max) {
     return parseInt((Math.random() * (max - min + 1) + min), 10);
+}
+
+/**
+ * 时间格式化
+ *
+ * @param {Number} time 毫秒
+ * @return {String} 格式化时间串
+ */
+function timeFormat(time) {
+    function addZero(num) {
+        return (num < 10 ? "0" : "") + num;
+    }
+    let fm = "00:00:00";
+    if (time > 0) {
+        let s = time >= 60 ? addZero(parseInt(time % 60)) : addZero(time);
+        let m = time >= 60 ? addZero(parseInt(time / 60)) : "00";
+        let h = time >= 360 ? addZero(parseInt(time / 360)) : "00";
+        fm = h + ":" + m + ":" + s;
+    }
+    return fm;
 }

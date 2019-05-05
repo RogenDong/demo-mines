@@ -34,6 +34,12 @@ body {
     font-size: 5em;
     display: inline-block;
 }
+#modBtns, #optBtns {
+    margin-bottom: 5px;
+}
+#progressInfo b {
+    margin-right: 5px;
+}
 .close {
     background-color: #666;
 }
