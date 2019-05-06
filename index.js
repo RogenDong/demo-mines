@@ -113,11 +113,12 @@ var flagTmpl,
 function winReady() {
     mineMatrix = [];
     gameStatus = statusKey.stop;
+    document.oncontextmenu = iEsc;
     // region // 初始化显示单元
     flagTmpl = "<b class='flag' style='visibility: visible'>#flag</b>";
     boxTmpl = "<div id='mb-#x-#y' class='tmpl close' " +
         "data-x='#x' data-y='#y' data-mine='0' data-tag='' " +
-        "oncontextmenu='return false' onmouseup='mouseUp(event, this)'>" +
+        "onmouseup='mouseUp(event, this)'>" +
         flagTmpl.replace("visible", "hidden") + "</div>";
     foundSpan = document.getElementById("found");
     gameTimeSpan = document.getElementById("gameTime");
@@ -366,9 +367,13 @@ function setTag(element) {
     let tag = element.getAttribute(attKey);
     switch (tag) {
         case tagKey.none:
-            gameProgress.foundMine++;
-            inH = inH.replace(defFlag, tag = tagKey.have);
-            break;
+            if (gameProgress.foundMine < matrixInfo.mCount) {
+                gameProgress.foundMine++;
+                inH = inH.replace(defFlag, tag = tagKey.have);
+                break;
+            } else {
+                return;
+            }
         case tagKey.have:
             if (gameProgress.foundMine > 0) gameProgress.foundMine--;
             inH = inH.replace(defFlag, tag = tagKey.doubt);
@@ -569,4 +574,8 @@ function timeFormat(time) {
         fm = h + ":" + m + ":" + s;
     }
     return fm;
+}
+
+function iEsc() {
+    return false;
 }

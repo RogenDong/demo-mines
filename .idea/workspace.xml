@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="56b6a063-5464-4acd-9185-961d4979f603" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -40,8 +38,111 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/index.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-3198">
-                  <caret line="337" column="1" lean-forward="true" selection-start-line="337" selection-start-column="1" selection-end-line="337" selection-end-column="1" />
+                <state relative-caret-position="98">
+                  <caret line="115" column="34" lean-forward="true" selection-start-line="115" selection-start-column="34" selection-end-line="115" selection-end-column="34" />
+                  <folding>
+                    <element signature="e#0#33#0" />
+                    <element signature="e#53#129#0" />
+                    <element signature="e#146#419#0" />
+                    <element signature="e#152#172#0" />
+                    <element signature="e#193#213#0" />
+                    <element signature="e#236#257#0" />
+                    <element signature="e#280#301#0" />
+                    <element signature="e#326#347#0" />
+                    <element signature="e#372#394#0" />
+                    <element signature="e#421#494#0" />
+                    <element signature="e#508#555#0" />
+                    <element signature="e#557#612#0" />
+                    <element signature="e#626#703#0" />
+                    <element signature="e#653#700#0" />
+                    <element signature="e#704#723#0" />
+                    <element signature="e#742#770#0" />
+                    <element signature="e#788#814#0" />
+                    <element signature="e#834#861#0" />
+                    <element signature="e#884#909#0" />
+                    <element signature="e#927#953#0" />
+                    <element signature="e#971#998#0" />
+                    <element signature="e#1018#1043#0" />
+                    <element signature="e#1066#1089#0" />
+                    <element signature="e#1110#1136#0" />
+                    <element signature="e#1157#1187#0" />
+                    <element signature="e#1208#1231#0" />
+                    <element signature="e#1252#1279#0" />
+                    <element signature="n#!!doc;n#winReady#0" />
+                    <element signature="n#!!doc;n#loadBlocks#0" />
+                    <element signature="n#!!block;n#loadBlocks#0" />
+                    <element signature="e#2578#2687#0" />
+                    <element signature="e#2643#2681#0" />
+                    <element signature="e#2693#2711#0" />
+                    <element signature="e#2729#2801#0" />
+                    <element signature="e#2982#3001#0" />
+                    <element signature="e#3519#3544#0" />
+                    <element signature="e#3674#3992#0" />
+                    <element signature="e#3760#3922#0" />
+                    <element signature="e#4056#4076#0" />
+                    <element signature="e#4187#4213#0" />
+                    <element signature="n#!!doc;n#mouseUp#0" />
+                    <element signature="n#!!block;n#mouseUp#0" />
+                    <element signature="e#4818#4994#0" />
+                    <element signature="e#5024#5118#0" />
+                    <element signature="e#5072#5112#0" />
+                    <element signature="n#!!doc;n#loadMine#0" />
+                    <element signature="n#!!block;n#loadMine#0" />
+                    <element signature="e#5405#5427#0" />
+                    <element signature="e#5556#5671#0" />
+                    <element signature="e#5621#5665#0" />
+                    <element signature="e#5693#5708#0" />
+                    <element signature="e#5757#6449#0" />
+                    <element signature="e#6032#6409#0" />
+                    <element signature="e#6263#6399#0" />
+                    <element signature="e#6326#6385#0" />
+                    <element signature="e#6415#6443#0" />
+                    <element signature="n#!!doc;n#openBlock#0" />
+                    <element signature="n#!!block;n#openBlock#0" />
+                    <element signature="e#6876#7074#0" />
+                    <element signature="e#6979#7060#0" />
+                    <element signature="e#7080#7097#0" />
+                    <element signature="e#7159#7275#0" />
+                    <element signature="e#7281#7701#0" />
+                    <element signature="e#7305#7532#0" />
+                    <element signature="e#7538#7695#0" />
+                    <element signature="e#7826#7858#0" />
+                    <element signature="n#!!doc;n#openAround#0" />
+                    <element signature="n#!!block;n#openAround#0" />
+                    <element signature="e#8001#8144#0" />
+                    <element signature="e#8058#8138#0" />
+                    <element signature="n#!!doc;n#setTag#0" />
+                    <element signature="n#!!doc;n#win#0" />
+                    <element signature="n#!!block;n#f#0" />
+                    <element signature="n#!!doc;n#gameOver#0" />
+                    <element signature="n#!!block;n#gameOver#0" />
+                    <element signature="n#!!doc;n#preventClick#0" />
+                    <element signature="n#!!block;n#preventClick#0" />
+                    <element signature="n#!!doc;n#retryGame#0" />
+                    <element signature="n#!!block;n#retryGame#0" />
+                    <element signature="n#!!doc;n#pauseGame#0" />
+                    <element signature="n#!!block;n#pauseGame#0" />
+                    <element signature="n#!!doc;n#continueGame#0" />
+                    <element signature="n#!!block;n#continueGame#0" />
+                    <element signature="e#10309#10382#0" />
+                    <element signature="n#!!doc;n#changeMod#0" />
+                    <element signature="n#!!block;n#changeMod#0" />
+                    <element signature="n#!!doc;n#stopGame#0" />
+                    <element signature="n#!!block;n#stopGame#0" />
+                    <element signature="n#!!doc;n#resetGameProgress#0" />
+                    <element signature="n#!!block;n#resetGameProgress#0" />
+                    <element signature="n#!!doc;n#getRange#0" />
+                    <element signature="n#!!block;n#getRange#0" />
+                    <element signature="n#!!doc;n#insideRange#0" />
+                    <element signature="n#!!block;n#insideRange#0" />
+                    <element signature="e#11889#12000#0" />
+                    <element signature="n#!!doc;n#randomNum#0" />
+                    <element signature="n#!!block;n#randomNum#0" />
+                    <element signature="n#!!doc;n#timeFormat#0" />
+                    <element signature="n#!!block;n#timeFormat#0" />
+                    <element signature="n#!!block;n#addZero#0;n#!!block;n#timeFormat#0" />
+                    <element signature="e#12477#12729#0" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -91,8 +192,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/index.css" />
-        <option value="$PROJECT_DIR$/index.js" />
         <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/index.js" />
       </list>
     </option>
   </component>
@@ -158,12 +259,12 @@
       <workItem from="1556118289767" duration="9301000" />
       <workItem from="1556285406874" duration="3575000" />
       <workItem from="1557061771833" duration="16550000" />
-      <workItem from="1557150455151" duration="3836000" />
+      <workItem from="1557150455151" duration="4366000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42709000" />
+    <option name="totallyTimeSpent" value="43239000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-40" width="1366" height="808" extended-state="6" />
@@ -220,8 +321,111 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3198">
-          <caret line="337" column="1" lean-forward="true" selection-start-line="337" selection-start-column="1" selection-end-line="337" selection-end-column="1" />
+        <state relative-caret-position="98">
+          <caret line="115" column="34" lean-forward="true" selection-start-line="115" selection-start-column="34" selection-end-line="115" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#33#0" />
+            <element signature="e#53#129#0" />
+            <element signature="e#146#419#0" />
+            <element signature="e#152#172#0" />
+            <element signature="e#193#213#0" />
+            <element signature="e#236#257#0" />
+            <element signature="e#280#301#0" />
+            <element signature="e#326#347#0" />
+            <element signature="e#372#394#0" />
+            <element signature="e#421#494#0" />
+            <element signature="e#508#555#0" />
+            <element signature="e#557#612#0" />
+            <element signature="e#626#703#0" />
+            <element signature="e#653#700#0" />
+            <element signature="e#704#723#0" />
+            <element signature="e#742#770#0" />
+            <element signature="e#788#814#0" />
+            <element signature="e#834#861#0" />
+            <element signature="e#884#909#0" />
+            <element signature="e#927#953#0" />
+            <element signature="e#971#998#0" />
+            <element signature="e#1018#1043#0" />
+            <element signature="e#1066#1089#0" />
+            <element signature="e#1110#1136#0" />
+            <element signature="e#1157#1187#0" />
+            <element signature="e#1208#1231#0" />
+            <element signature="e#1252#1279#0" />
+            <element signature="n#!!doc;n#winReady#0" />
+            <element signature="n#!!doc;n#loadBlocks#0" />
+            <element signature="n#!!block;n#loadBlocks#0" />
+            <element signature="e#2578#2687#0" />
+            <element signature="e#2643#2681#0" />
+            <element signature="e#2693#2711#0" />
+            <element signature="e#2729#2801#0" />
+            <element signature="e#2982#3001#0" />
+            <element signature="e#3519#3544#0" />
+            <element signature="e#3674#3992#0" />
+            <element signature="e#3760#3922#0" />
+            <element signature="e#4056#4076#0" />
+            <element signature="e#4187#4213#0" />
+            <element signature="n#!!doc;n#mouseUp#0" />
+            <element signature="n#!!block;n#mouseUp#0" />
+            <element signature="e#4818#4994#0" />
+            <element signature="e#5024#5118#0" />
+            <element signature="e#5072#5112#0" />
+            <element signature="n#!!doc;n#loadMine#0" />
+            <element signature="n#!!block;n#loadMine#0" />
+            <element signature="e#5405#5427#0" />
+            <element signature="e#5556#5671#0" />
+            <element signature="e#5621#5665#0" />
+            <element signature="e#5693#5708#0" />
+            <element signature="e#5757#6449#0" />
+            <element signature="e#6032#6409#0" />
+            <element signature="e#6263#6399#0" />
+            <element signature="e#6326#6385#0" />
+            <element signature="e#6415#6443#0" />
+            <element signature="n#!!doc;n#openBlock#0" />
+            <element signature="n#!!block;n#openBlock#0" />
+            <element signature="e#6876#7074#0" />
+            <element signature="e#6979#7060#0" />
+            <element signature="e#7080#7097#0" />
+            <element signature="e#7159#7275#0" />
+            <element signature="e#7281#7701#0" />
+            <element signature="e#7305#7532#0" />
+            <element signature="e#7538#7695#0" />
+            <element signature="e#7826#7858#0" />
+            <element signature="n#!!doc;n#openAround#0" />
+            <element signature="n#!!block;n#openAround#0" />
+            <element signature="e#8001#8144#0" />
+            <element signature="e#8058#8138#0" />
+            <element signature="n#!!doc;n#setTag#0" />
+            <element signature="n#!!doc;n#win#0" />
+            <element signature="n#!!block;n#f#0" />
+            <element signature="n#!!doc;n#gameOver#0" />
+            <element signature="n#!!block;n#gameOver#0" />
+            <element signature="n#!!doc;n#preventClick#0" />
+            <element signature="n#!!block;n#preventClick#0" />
+            <element signature="n#!!doc;n#retryGame#0" />
+            <element signature="n#!!block;n#retryGame#0" />
+            <element signature="n#!!doc;n#pauseGame#0" />
+            <element signature="n#!!block;n#pauseGame#0" />
+            <element signature="n#!!doc;n#continueGame#0" />
+            <element signature="n#!!block;n#continueGame#0" />
+            <element signature="e#10309#10382#0" />
+            <element signature="n#!!doc;n#changeMod#0" />
+            <element signature="n#!!block;n#changeMod#0" />
+            <element signature="n#!!doc;n#stopGame#0" />
+            <element signature="n#!!block;n#stopGame#0" />
+            <element signature="n#!!doc;n#resetGameProgress#0" />
+            <element signature="n#!!block;n#resetGameProgress#0" />
+            <element signature="n#!!doc;n#getRange#0" />
+            <element signature="n#!!block;n#getRange#0" />
+            <element signature="n#!!doc;n#insideRange#0" />
+            <element signature="n#!!block;n#insideRange#0" />
+            <element signature="e#11889#12000#0" />
+            <element signature="n#!!doc;n#randomNum#0" />
+            <element signature="n#!!block;n#randomNum#0" />
+            <element signature="n#!!doc;n#timeFormat#0" />
+            <element signature="n#!!block;n#timeFormat#0" />
+            <element signature="n#!!block;n#addZero#0;n#!!block;n#timeFormat#0" />
+            <element signature="e#12477#12729#0" />
+          </folding>
         </state>
       </provider>
     </entry>
