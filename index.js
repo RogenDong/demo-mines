@@ -7,7 +7,7 @@ var lostCount = 0;
  * 字典：游玩状态
  * @type {{stop: string, ready: string, playing: string}}
  */
-var statusKey = {
+const statusKey = {
     /**
      * 赢
      */
@@ -37,7 +37,7 @@ var statusKey = {
  * 字典：右键标签
  * @type {{have: string, doubt: string, none: string}}
  */
-var tagKey = {
+const tagKey = {
     none: "",
     have: "!",
     doubt: "?"
@@ -46,7 +46,7 @@ var tagKey = {
  * 提示语
  * @type {{lose: string[], win: string}}
  */
-var msgKey = {
+const msgKey = {
     win: "WIN",
     lose: [
         "DIE",
@@ -98,6 +98,10 @@ var flagTmpl,
      * 矩阵：地雷盒子打开状态
      */
     openStatus,
+    /**
+     * 标记位置
+     */
+    haveTags,
     /**
      * 游玩状态
      */
@@ -183,18 +187,22 @@ function loadBlocks(w, h) {
     let boxArr = [];
     mineMatrix = [];
     openStatus = [];
+    haveTags = [];
     boxArr.push(cover.outerHTML);
     for (let y = 0; y < h; y++) {
         let line1 = [];
         let line2 = [];
+        let line3 = [];
         for (let x = 0; x < w; x++) {
             let tmp = boxTmpl.replace(/#x/g, x).replace(/#y/g, y);
             boxArr.push(tmp);
             line1.push(0);
             line2.push(0);
+            line3.push(0);
         }
         mineMatrix.push(line1);
         openStatus.push(line2);
+        haveTags.push(line3);
     }
     sandbox.innerHTML = boxArr.join("");
     // endregion
@@ -324,7 +332,10 @@ function openBlock(element) {
             // 雷区格子内容
             element.innerHTML = flagTmpl.replace("#flag", "X");
             element.className = element.className.replace("close", "die");
-            // TODO 打开所有未标记的地雷
+            // 打开所有地雷
+            openAllMine();
+            // 标记误判
+            findWrong();
         } else {
             element.className = element.className.replace("close", "bc" + flag);
             element.innerHTML = flagTmpl.replace("#flag", flag);
@@ -339,7 +350,7 @@ function openBlock(element) {
 }
 
 /**
- * 打开周围9个区域的格子
+ * 打开周围8个区域的格子
  *
  * @param centerX {Number} 中心-x轴
  * @param centerY {Number} 中心-y轴
@@ -365,9 +376,12 @@ function setTag(element) {
     let inH = flagTmpl;
     let attKey = "data-tag", defFlag = "#flag";
     let tag = element.getAttribute(attKey);
+    let x = element.getAttribute("data-x");
+    let y = element.getAttribute("data-y");
     switch (tag) {
         case tagKey.none:
             if (gameProgress.foundMine < matrixInfo.mCount) {
+                haveTags[y][x] = 1;
                 gameProgress.foundMine++;
                 inH = inH.replace(defFlag, tag = tagKey.have);
                 break;
@@ -377,6 +391,7 @@ function setTag(element) {
         case tagKey.have:
             if (gameProgress.foundMine > 0) gameProgress.foundMine--;
             inH = inH.replace(defFlag, tag = tagKey.doubt);
+            haveTags[y][x] = 0;
             break;
         default:
         case tagKey.doubt:
@@ -393,31 +408,76 @@ function setTag(element) {
  * 完成游戏
  */
 function win() {
-    // 赢了
-    gameStatus = statusKey.win;
-    // 防点击
-    preventClick();
-    // 动态提示语
-    let epitaph = document.getElementById("epitaph");
-    epitaph.className = "winMsg";
-    epitaph.innerText = msgKey.win;
+    if (gameStatus === statusKey.playing) {
+        // 赢了
+        gameStatus = statusKey.win;
+        // 防点击
+        preventClick();
+        // 动态提示语
+        let epitaph = document.getElementById("epitaph");
+        epitaph.className = "winMsg";
+        epitaph.innerText = msgKey.win;
+    }
 }
 
 /**
  * 失败
  */
 function gameOver() {
-    // 输了，game over
-    gameStatus = statusKey.lose;
-    // 防点击
-    preventClick();
-    // 提示语
-    let msgLen = msgKey.lose.length;
-    let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
-    // 动态提示语
-    let epitaph = document.getElementById("epitaph");
-    epitaph.className = "loseMsg";
-    epitaph.innerText = msgKey.lose[index];
+    if (gameStatus === statusKey.playing) {
+        // 输了，game over
+        gameStatus = statusKey.lose;
+        // 防点击
+        preventClick();
+        // 提示语
+        let msgLen = msgKey.lose.length;
+        let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
+        // 动态提示语
+        let epitaph = document.getElementById("epitaph");
+        epitaph.className = "loseMsg";
+        epitaph.innerText = msgKey.lose[index];
+    }
+}
+
+/**
+ * 打开所有地雷
+ */
+function openAllMine() {
+    if (gameStatus !== statusKey.lose) return;
+    let os = openStatus,
+        temp = mineMatrix,
+        tmpl = 'mb-#x-#y';
+    for (let y = 0; y < temp.length; y++) {
+        for (let x = 0; x < temp[y].length; x++) {
+            if (temp[y][x] > 8 && os[y][x] < 1) {
+                let block = document.getElementById(tmpl.replace("#x", x).replace("#y", y));
+                // 打了标记的，不打开
+                if (block.getAttribute("data-tag") === tagKey.have) {
+                    continue;
+                }
+                block.innerHTML = flagTmpl.replace("#flag", "X");
+                block.className = block.className.replace("close", "notFound");
+            }
+        }
+    }
+}
+
+/**
+ * 查找误判区
+ */
+function findWrong() {
+    if (gameStatus !== statusKey.lose) return;
+    let temp = haveTags,
+        mm = mineMatrix,
+        tmpl = 'mb-#x-#y';
+    for (let y = 0; y < temp.length; y++) {
+        for (let x = 0; x < temp[y].length; x++) {
+            if (temp[y][x] > 0 && mm[y][x] < 9) {
+                let block = document.getElementById(tmpl.replace("#x", x).replace("#y", y));
+                block.className = block.className.replace("close", "wrong");
+            }
+        }
+    }
 }
 
 /**

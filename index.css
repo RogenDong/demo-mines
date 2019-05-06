@@ -83,6 +83,18 @@ body {
 .die {
     background-color: red;
 }
+.wrong {
+    background-color: white;
+}
+.wrong b {
+    color: red;
+}
+.notFound {
+    background-color: black;
+}
+.notFound b {
+    color: red;
+}
 .loseMsg {
     color: red;
     text-shadow: 0 0 20px red;
