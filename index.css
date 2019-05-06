@@ -87,3 +87,7 @@ body {
     color: red;
     text-shadow: 0 0 20px red;
 }
+.winMsg {
+    color: greenyellow;
+    text-shadow: 0 0 20px white;
+}

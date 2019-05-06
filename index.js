@@ -47,7 +47,7 @@ var tagKey = {
  * @type {{lose: string[], win: string}}
  */
 var msgKey = {
-    win: "大佬",
+    win: "WIN",
     lose: [
         "DIE",
         "菜",
@@ -126,10 +126,10 @@ function winReady() {
     // region // 初始化按钮组
     modBtns = document.getElementById("modBtns");
     optBtnArr = {};
+    optBtnArr['sb'] = document.getElementById("stopBtn");
     optBtnArr['pb'] = document.getElementById("pauseBtn");
     optBtnArr['cb'] = document.getElementById("continueBtn");
     optBtnArr['mb'] = document.getElementById("changeModBtn");
-    optBtnArr['sb'] = document.getElementById("stopBtn");
     optBtns = document.getElementById("optBtns");
     optBtns.style['display'] = "none";
     // 隐藏进度信息
@@ -200,8 +200,9 @@ function loadBlocks(w, h) {
 
     // region // 初始化游戏进度
     gameProgress = {};
-    gameProgress['foundMine'] = 0;
     gameProgress['time'] = 0;
+    gameProgress['foundMine'] = 0;
+    gameProgress['closed'] = w * h;
     // endregion
 
     // region // 控制按钮的显示、隐藏、禁用
@@ -299,6 +300,8 @@ function openBlock(element) {
     if (openStatus[blockY][blockX] > 0) return;
     // 没打开过就设置为打开
     openStatus[blockY][blockX] = 1;
+    // 未打开的盒子数量减1
+    gameProgress.closed--;
 
     // ready 阶段先执行布雷函数
     if (gameStatus === statusKey.ready) {
@@ -324,6 +327,10 @@ function openBlock(element) {
         } else {
             element.className = element.className.replace("close", "bc" + flag);
             element.innerHTML = flagTmpl.replace("#flag", flag);
+            // 若剩余未打开盒子数量等于地雷数量，表示赢得游戏
+            if (gameProgress.closed <= matrixInfo.mCount) {
+                win();
+            }
         }
     }
     element.onmouseup = null;
@@ -378,11 +385,27 @@ function setTag(element) {
 }
 
 /**
+ * 完成游戏
+ */
+function win() {
+    // 赢了
+    gameStatus = statusKey.win;
+    // 防点击
+    preventClick();
+    // 动态提示语
+    let epitaph = document.getElementById("epitaph");
+    epitaph.className = "winMsg";
+    epitaph.innerText = msgKey.win;
+}
+
+/**
  * 失败
  */
 function gameOver() {
     // 输了，game over
     gameStatus = statusKey.lose;
+    // 防点击
+    preventClick();
     // 提示语
     let msgLen = msgKey.lose.length;
     let index = lostCount >= msgLen ? msgLen - 1 : lostCount++;
@@ -390,6 +413,12 @@ function gameOver() {
     let epitaph = document.getElementById("epitaph");
     epitaph.className = "loseMsg";
     epitaph.innerText = msgKey.lose[index];
+}
+
+/**
+ * 弹出蒙板，防止点击盒子
+ */
+function preventClick() {
     // 让透明盖子出现，阻止点击盒子
     let cover = document.getElementById("cover");
     cover.style["visibility"] = "visible";
