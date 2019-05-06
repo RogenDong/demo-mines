@@ -2,10 +2,13 @@ body {
     min-height: 800px;
     position: relative;
 }
-
+b, span {
+    user-select: none;
+}
 #sandbox {
     line-height: 0;
     position: relative;
+    border-radius: 2px;
     background-color: #999;
 }
 #cover {

@@ -122,7 +122,7 @@ function winReady() {
     flagTmpl = "<b class='flag' style='visibility: visible'>#flag</b>";
     boxTmpl = "<div id='mb-#x-#y' class='tmpl close' " +
         "data-x='#x' data-y='#y' data-mine='0' data-tag='' " +
-        "onmouseup='mouseUp(event, this)'>" +
+        "ondblclick='quickOpen(this)' onmouseup='mouseUp(event, this)'>" +
         flagTmpl.replace("visible", "hidden") + "</div>";
     foundSpan = document.getElementById("found");
     gameTimeSpan = document.getElementById("gameTime");
@@ -350,6 +350,29 @@ function openBlock(element) {
 }
 
 /**
+ * 快速打开
+ *
+ * @param element {Element} 目标元素
+ */
+function quickOpen(element) {
+    if (gameStatus !== statusKey.playing) return;
+    let x = parseInt(element.getAttribute("data-x")),
+        y = parseInt(element.getAttribute("data-y")),
+        flag = mineMatrix[y][x];
+    if (flag < 1) return;
+    let have = 0,
+        temp = haveTags,
+        xyRange = getRange(x, y);
+    for (let y = xyRange[2]; y <= xyRange[3]; y++) {
+        for (let x = xyRange[0]; x <= xyRange[1]; x++) {
+            if (temp[y][x] > 0) have++;
+        }
+    }
+    if (have !== flag) return;
+    openAround(x, y);
+}
+
+/**
  * 打开周围8个区域的格子
  *
  * @param centerX {Number} 中心-x轴
@@ -357,9 +380,11 @@ function openBlock(element) {
  */
 function openAround(centerX, centerY) {
     // 遍历周围的盒子，全部打开
-    let xyRange = getRange(centerX, centerY);
+    let xyRange = getRange(centerX, centerY),
+        temp = haveTags;
     for (let y = xyRange[2]; y <= xyRange[3]; y++) {
         for (let x = xyRange[0]; x <= xyRange[1]; x++) {
+            if (temp[y][x] > 0) continue;
             openBlock(document.getElementById("mb-" + x + "-" + y));
         }
     }
