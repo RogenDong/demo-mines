@@ -133,6 +133,7 @@ function winReady() {
     optBtnArr = {};
     optBtnArr['sb'] = document.getElementById("stopBtn");
     optBtnArr['pb'] = document.getElementById("pauseBtn");
+    optBtnArr['rb'] = document.getElementById("retryBtn");
     optBtnArr['cb'] = document.getElementById("continueBtn");
     optBtnArr['mb'] = document.getElementById("changeModBtn");
     optBtns = document.getElementById("optBtns");
@@ -223,8 +224,8 @@ function loadBlocks(w, h) {
     optBtnArr.cb.style['display'] = "none";
     // 禁用结束按钮
     optBtnArr.sb.disabled = true;
-    // 隐藏“重新开始”按钮
-    document.getElementById("retryBtn").style['visibility'] = 'hidden';
+    // 禁用“重新开始”按钮
+    optBtnArr.rb.disabled = true;
     // endregion
 
     // 显示进度信息
@@ -263,6 +264,7 @@ function loadMine(firstX, firstY) {
     // 启用暂停按钮、变更难度按钮
     optBtnArr.pb.disabled = false;
     optBtnArr.sb.disabled = false;
+    optBtnArr.rb.disabled = false;
 
     // region // 获取起始点周围坐标
     let around = [];
@@ -356,20 +358,23 @@ function openBlock(element) {
  */
 function quickOpen(element) {
     if (gameStatus !== statusKey.playing) return;
-    let x = parseInt(element.getAttribute("data-x")),
-        y = parseInt(element.getAttribute("data-y")),
-        flag = mineMatrix[y][x];
+    let dx = parseInt(element.getAttribute("data-x")),
+        dy = parseInt(element.getAttribute("data-y")),
+        flag = mineMatrix[dy][dx];
     if (flag < 1) return;
     let have = 0,
-        temp = haveTags,
-        xyRange = getRange(x, y);
+        chainQueue = [],
+        xyRange = getRange(dx, dy);
     for (let y = xyRange[2]; y <= xyRange[3]; y++) {
         for (let x = xyRange[0]; x <= xyRange[1]; x++) {
-            if (temp[y][x] > 0) have++;
+            if (haveTags[y][x] > 0) {
+                chainQueue.push([x, y]);
+                have++;
+            }
         }
     }
     if (have !== flag) return;
-    openAround(x, y);
+    openAround(dx, dy);
 }
 
 /**
@@ -380,11 +385,10 @@ function quickOpen(element) {
  */
 function openAround(centerX, centerY) {
     // 遍历周围的盒子，全部打开
-    let xyRange = getRange(centerX, centerY),
-        temp = haveTags;
+    let xyRange = getRange(centerX, centerY);
     for (let y = xyRange[2]; y <= xyRange[3]; y++) {
         for (let x = xyRange[0]; x <= xyRange[1]; x++) {
-            if (temp[y][x] > 0) continue;
+            if (haveTags[y][x] > 0) continue;
             openBlock(document.getElementById("mb-" + x + "-" + y));
         }
     }
@@ -515,7 +519,6 @@ function preventClick() {
     // 禁用按钮、停止计时、显示“重新开始”
     optBtnArr.pb.disabled = true;
     clearInterval(progressInterval);
-    document.getElementById("retryBtn").style['visibility'] = 'visible';
 }
 
 /**
@@ -523,9 +526,7 @@ function preventClick() {
  */
 function retryGame() {
     changeMod();
-    let w = matrixInfo.width,
-        h = matrixInfo.height;
-    loadBlocks(w, h);
+    loadBlocks(matrixInfo.width, matrixInfo.height);
 }
 
 /**
@@ -651,6 +652,7 @@ function timeFormat(time) {
     function addZero(num) {
         return (num < 10 ? "0" : "") + num;
     }
+
     let fm = "00:00:00";
     if (time > 0) {
         let s = time >= 60 ? addZero(parseInt(time % 60)) : addZero(time);

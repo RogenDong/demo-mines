@@ -1,8 +1,6 @@
 body {
     min-height: 800px;
     position: relative;
-}
-b, span {
     user-select: none;
 }
 #sandbox {
