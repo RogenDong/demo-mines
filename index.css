@@ -2,8 +2,10 @@ body {
     min-height: 800px;
     position: relative;
     user-select: none;
+    text-align: center;
 }
 #sandbox {
+    margin: 0 auto;
     line-height: 0;
     position: relative;
     border-radius: 2px;
